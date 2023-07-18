@@ -13,3 +13,16 @@
  what's here is meant to be an example for non-trivial cases. google's distroless / distroless-static
  are great for many cases and there's overlap here with those.
  If you can use those directly (any of the flavors they support), go for it.
+
+
+ ### Comparison to python-slim
+
+  comparing against using python:3.11.3-slim-bullseye as a direct base (for the closest possible comparison)
+  
+  - we get an image that is about 22% smaller for including python (prior to our code being added for python to run) (good)
+  - we don't run as root (good)
+  - we don't have a shell (good)
+  - we don't have runtime access to buildtools (good)
+  - a dependency on a specific build of python (mixed good and bad, this can be sidestepped without losing other benefits here)
+
+  we don't compare to alpine based official python builds, as these are currently slower performance wise by a margin that should matter even to people who claim python performance doesn't matter. A fair comparison to this could be constructed, but we actually want an optimized runtime
