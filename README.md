@@ -15,7 +15,7 @@
  If you can use those directly (any of the flavors they support), go for it.
 
 
- ### Comparison to python-slim
+ ### Comparison between python here to python-slim
 
   comparing against using python:3.11.3-slim-bullseye as a direct base (for the closest possible comparison)
   
@@ -26,3 +26,9 @@
   - a dependency on a specific build of python (mixed good and bad, this can be sidestepped without losing other benefits here)
 
   we don't compare to alpine based official python builds, as these are currently slower performance wise by a margin that should matter even to people who claim python performance doesn't matter. A fair comparison to this could be constructed, but we actually want an optimized runtime
+
+### TODO
+
+- other examples
+- more detail to existing example(s)
+- detailed explanation of how to asses various tradeoffs
