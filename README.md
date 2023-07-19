@@ -29,6 +29,5 @@
 
 ### TODO
 
-- other examples
-- more detail to existing example(s)
+- other (non-python) examples
 - detailed explanation of how to asses various tradeoffs

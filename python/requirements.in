@@ -1,0 +1,3 @@
+# Dependencies that aren't pure python, as an example
+apsw>=3.42,<4
+msgspec==0.17.0
