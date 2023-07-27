@@ -9,21 +9,15 @@ ENV LC_ALL C.UTF-8
 ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-install_only
 # And the actual release version for that
 ENV BASE_URL https://github.com/indygreg/python-build-standalone/releases/download
-ENV PYTHON_VER cpython-3.11.3+20230507
-ENV RELEASE_VER 20230507
-ENV SHASUM 6452fe315b5240040acffc5688e97fc264d9eb8fbfdd90c6ede0bc46b20640e0
+ENV PYTHON_VER cpython-3.11.4+20230726
+ENV RELEASE_VER 20230726
+ENV SHASUM f6882a821a02c8f727fce12044f8ed03c0814c68c483e9c074b7d62e8aaf3adf
 # pip
 ENV PYTHON_PIP_VERSION 23.1.2
 ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
 ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/0d8570dc44796f4369b652222cf176b3db6ac70e/public/get-pip.py
 ENV PYTHON_GET_PIP_SHA256 96461deced5c2a487ddc65207ec5a9cffeca0d34e7af7ea1afc470ff0d746207
 
-# A lot of distros have dropped LSB compliance as a requirement,
-# and a lot of things, python included, relied on it
-# https://github.com/indygreg/python-build-standalone/issues/173
-# This is distroless, as a base, we'll also be copying in libcrypt in the final image
-# 3.13 moots this in the future with the removal of `crypt`
-# https://discuss.python.org/t/pep-594-has-been-implemented-python-3-13-removes-20-stdlib-modules/27124
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
@@ -31,7 +25,6 @@ RUN set -eux; \
 		ca-certificates \
 		netbase \
 		tzdata \
-		libcrypt1 \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
@@ -99,9 +92,6 @@ ENV PYTHONFAULTHANDLER 1
 # copy in python and the built dependencies
 COPY --from=build-stage /python /
 COPY --from=build-stage /deps /deps
-
-ENV ARCH_INFO x86_64-linux-gnu
-COPY --from=build-stage /lib/${ARCH_INFO}/libcrypt.so.1 /lib/${ARCH_INFO}/libcrypt.so.1
 
 # copy in your app code, as well as any native deps built in build stage here
 
