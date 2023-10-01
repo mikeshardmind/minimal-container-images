@@ -9,14 +9,14 @@ ENV LC_ALL C.UTF-8
 ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-install_only
 # And the actual release version for that
 ENV BASE_URL https://github.com/indygreg/python-build-standalone/releases/download
-ENV PYTHON_VER cpython-3.11.4+20230726
-ENV RELEASE_VER 20230726
-ENV SHASUM f6882a821a02c8f727fce12044f8ed03c0814c68c483e9c074b7d62e8aaf3adf
+ENV PYTHON_VER 3.11.5
+ENV RELEASE_VER 20230826
+ENV SHASUM 5b975dd6a4648d16f278e9d82027f29feb01eda6009b239d7a7c69f421ebd519
 # pip
-ENV PYTHON_PIP_VERSION 23.1.2
+ENV PYTHON_PIP_VERSION 23.2.1
 ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
-ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/0d8570dc44796f4369b652222cf176b3db6ac70e/public/get-pip.py
-ENV PYTHON_GET_PIP_SHA256 96461deced5c2a487ddc65207ec5a9cffeca0d34e7af7ea1afc470ff0d746207
+ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/9af82b715db434abb94a0a6f3569f43e72157346/public/get-pip.py
+ENV PYTHON_GET_PIP_SHA256 45a2bb8bf2bb5eff16fdd00faef6f29731831c7c59bd9fc2bf1f3bed511ff1fe
 
 RUN set -eux; \
 	apt-get update; \
@@ -29,7 +29,7 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
-	wget -O python.tar.gz "${BASE_URL}/${RELEASE_VER}/${PYTHON_VER}-${PY_FLAVOR}.tar.gz"; \
+	wget -O python.tar.gz "${BASE_URL}/${RELEASE_VER}/cpython-${PYTHON_VER}+${RELEASE_VER}-${PY_FLAVOR}.tar.gz"; \
 	echo "${SHASUM}  python.tar.gz" | sha256sum --check --status; \
 	tar --extract --directory / --file python.tar.gz; \
 	rm -r /python/share/ ;\
