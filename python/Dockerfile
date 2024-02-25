@@ -9,9 +9,9 @@ ENV LC_ALL C.UTF-8
 ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-install_only
 # And the actual release version for that
 ENV BASE_URL https://github.com/indygreg/python-build-standalone/releases/download
-ENV PYTHON_VER 3.11.7
-ENV RELEASE_VER 20240107
-ENV SHASUM 08dd57796b8fcc2a7307ed4dbe7a69cf35856cb29a5c79f827fe08a0663c227f
+ENV PYTHON_VER 3.11.8
+ENV RELEASE_VER 20240224
+ENV SHASUM 52b3e24b08e53e5098561a13a61e28d241231331fd903dcb2a1e4161f3753dc1
 # pip
 ENV PYTHON_PIP_VERSION 23.2.1
 ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
@@ -63,7 +63,7 @@ ADD requirements.txt .
 
 RUN set -eux; \
 	mkdir -p /deps; \
-	/python/bin/python3 -m pip install --target=/deps -r requirements.txt --require-hashes;
+	/python/bin/python3 -m pip install --target=/deps -r requirements.txt;
 
 # We use base, not static, despite indygreg's work on ensuring these dependencies are included for python
 # because many extensions may not statically link the few things included additionally
