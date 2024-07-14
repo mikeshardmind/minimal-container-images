@@ -6,21 +6,22 @@ ENV LC_ALL C.UTF-8
 # swap it up if you want to
 
 # This is arch + cpu instructionset
-ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-install_only
+ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-pgo+lto-full
 # And the actual release version for that
 ENV BASE_URL https://github.com/indygreg/python-build-standalone/releases/download
-ENV PYTHON_VER 3.11.8
-ENV RELEASE_VER 20240224
-ENV SHASUM 52b3e24b08e53e5098561a13a61e28d241231331fd903dcb2a1e4161f3753dc1
+ENV PYTHON_VER 3.12.4
+ENV RELEASE_VER 20240713
+ENV SHASUM 7bd1ba6c8d3cc0852d0f542ad39f257d4316bad4ea20b19c9b2031eae13b3f7f
 # pip
-ENV PYTHON_PIP_VERSION 24.0
+ENV PYTHON_PIP_VERSION 24.1.1
 ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
-ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/9af82b715db434abb94a0a6f3569f43e72157346/public/get-pip.py
-ENV PYTHON_GET_PIP_SHA256 45a2bb8bf2bb5eff16fdd00faef6f29731831c7c59bd9fc2bf1f3bed511ff1fe
+ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/e03e1607ad60522cf34a92e834138eb89f57667c/public/get-pip.py
+ENV PYTHON_GET_PIP_SHA256 ee09098395e42eb1f82ef4acb231a767a6ae85504a9cf9983223df0a7cbd35d7
 
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
+		zstd \
 		wget \
 		ca-certificates \
 		netbase \
@@ -29,21 +30,23 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
-	wget -O python.tar.gz "${BASE_URL}/${RELEASE_VER}/cpython-${PYTHON_VER}+${RELEASE_VER}-${PY_FLAVOR}.tar.gz"; \
-	echo "${SHASUM}  python.tar.gz" | sha256sum --check --status; \
-	tar --extract --directory / --file python.tar.gz; \
-	rm -r /python/share/ ;\
-	rm python.tar.gz; \
-	rm /python/bin/pip*; \
+	wget -O python.tar.zst "${BASE_URL}/${RELEASE_VER}/cpython-${PYTHON_VER}+${RELEASE_VER}-${PY_FLAVOR}.tar.zst"; \
+	echo "${SHASUM}  python.tar.zst" | sha256sum --check --status; \
+	tar --extract --use-compress-program=unzstd --directory / --file python.tar.zst; \
+	rm -r /python/build/; \
+	rm -r /python/licenses/; \
+	rm -r /python/install/share/; \
+	rm python.tar.zst; \
+	rm /python/install/bin/pip*; \
 	\
 	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
 	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; \
 	\
 	export PYTHONDONTWRITEBYTECODE=1; \
-	export PYTHONHOME=/python/lib/python3.11; \
-	export PYTHONPATH=/python/lib/python3.11; \
+	export PYTHONHOME=/python/install/lib/python3.12; \
+	export PYTHONPATH=/python/install/lib/python3.12; \
 	\
-	/python/bin/python3 get-pip.py \
+	/python/install/bin/python3 get-pip.py \
 		--disable-pip-version-check \
 		--no-cache-dir \
 		--no-compile \
@@ -54,8 +57,8 @@ RUN set -eux; \
 	rm -f get-pip.py
 
 ENV PATH /python/bin:$PATH
-ENV PYTHONHOME /python/lib/python3.11
-ENV PYTHONPATH /python/lib/python3.11
+ENV PYTHONHOME /python/install/lib/python3.12
+ENV PYTHONPATH /python/install/lib/python3.12
 
 # This is where you can build any deps
 
@@ -63,7 +66,7 @@ ADD requirements.txt .
 
 RUN set -eux; \
 	mkdir -p /deps; \
-	/python/bin/python3 -m pip install --target=/deps -r requirements.txt;
+	/python/install/bin/python3 -m pip install --target=/deps -r requirements.txt;
 
 # We use base, not static, despite indygreg's work on ensuring these dependencies are included for python
 # because many extensions may not statically link the few things included additionally
@@ -80,8 +83,8 @@ FROM gcr.io/distroless/base-debian11:debug-nonroot as final_stage
 # Various envioronment settings neccessary
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-ENV PYTHONHOME /lib/python3.11
-ENV PYTHONPATH /lib/python3.11:/deps
+ENV PYTHONHOME /lib/python3.12
+ENV PYTHONPATH /lib/python3.12:/deps
 
 # Various desirable environment settings
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -90,7 +93,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONFAULTHANDLER 1
 
 # copy in python and the built dependencies
-COPY --from=build-stage /python /
+COPY --from=build-stage /python/install /
 COPY --from=build-stage /deps /deps
 
 # copy in your app code, as well as any native deps built in build stage here
