@@ -32,21 +32,19 @@ RUN set -eux; \
 RUN set -eux; \
 	wget -O python.tar.zst "${BASE_URL}/${RELEASE_VER}/cpython-${PYTHON_VER}+${RELEASE_VER}-${PY_FLAVOR}.tar.zst"; \
 	echo "${SHASUM}  python.tar.zst" | sha256sum --check --status; \
-	tar --extract --use-compress-program=unzstd --directory / --file python.tar.zst; \
-	rm -r /python/build/; \
-	rm -r /python/licenses/; \
-	rm -r /python/install/share/; \
+	tar --extract --use-compress-program=unzstd --directory / --strip-components 1 --file python.tar.zst python/install/ ; \
+	rm -r /install/share/; \
 	rm python.tar.zst; \
-	rm /python/install/bin/pip*; \
+	rm /install/bin/pip*; \
 	\
 	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
 	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; \
 	\
 	export PYTHONDONTWRITEBYTECODE=1; \
-	export PYTHONHOME=/python/install/lib/python3.12; \
-	export PYTHONPATH=/python/install/lib/python3.12; \
+	export PYTHONHOME=/install/lib/python3.12; \
+	export PYTHONPATH=/install/lib/python3.12; \
 	\
-	/python/install/bin/python3 get-pip.py \
+	/install/bin/python3 get-pip.py \
 		--disable-pip-version-check \
 		--no-cache-dir \
 		--no-compile \
@@ -56,9 +54,9 @@ RUN set -eux; \
 	; \
 	rm -f get-pip.py
 
-ENV PATH /python/bin:$PATH
-ENV PYTHONHOME /python/install/lib/python3.12
-ENV PYTHONPATH /python/install/lib/python3.12
+ENV PATH /install/bin:$PATH
+ENV PYTHONHOME /install/lib/python3.12
+ENV PYTHONPATH /install/lib/python3.12
 
 # This is where you can build any deps
 
@@ -66,7 +64,7 @@ ADD requirements.txt .
 
 RUN set -eux; \
 	mkdir -p /deps; \
-	/python/install/bin/python3 -m pip install --target=/deps -r requirements.txt;
+	/install/bin/python -m pip install --target=/deps -r requirements.txt;
 
 # We use base, not static, despite indygreg's work on ensuring these dependencies are included for python
 # because many extensions may not statically link the few things included additionally
@@ -93,7 +91,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONFAULTHANDLER 1
 
 # copy in python and the built dependencies
-COPY --from=build-stage /python/install /
+COPY --from=build-stage /install /
 COPY --from=build-stage /deps /deps
 
 # copy in your app code, as well as any native deps built in build stage here
