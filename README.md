@@ -15,10 +15,14 @@
  If you can use those directly (any of the flavors they support), go for it.
 
 
- ### Comparison between python here to python-slim
+ ### Comparison between python here to python-slim (outdated, but remains true of current versions)
+
+  (Current 3.12.4, no deps, ours: less than 94MB)
+
+  (below outdated)
 
   comparing against using python:3.11.3-slim-bullseye as a direct base (for the closest possible comparison)
-  
+
   - we get an image that is about 22% smaller for including python (prior to our code being added for python to run) (good)
   - we don't run as root (good)
   - we don't have a shell (good)
