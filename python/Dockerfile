@@ -1,17 +1,16 @@
 FROM debian:bullseye-slim as build-stage
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
 # This could be replaced with building python ourselves, but I find this acceptable.
 # swap it up if you want to
 
 # This is arch + cpu instructionset
 ENV PY_FLAVOR x86_64-unknown-linux-gnu-install_only_stripped
 # And the actual release version for that
-ENV BASE_URL https://github.com/indygreg/python-build-standalone/releases/download
-ENV PYTHON_VER 3.12.4
-ENV RELEASE_VER 20240726
-ENV SHASUM ca076aee4329f53f988346eb0521ad2a2cf7f723b6296088d03b98d8f22f5420
+ENV BASE_URL https://github.com/astral-sh/python-build-standalone/releases/download
+ENV PYTHON_VER 3.12.8
+ENV RELEASE_VER 20241206
+ENV SHASUM a19f6765df233ec3943c5e975c104a2ffd60ba1258cb038d7d6b8208308921c0
+
 # pip
 ENV PYTHON_PIP_VERSION 24.1.1
 ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
