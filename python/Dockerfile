@@ -4,19 +4,19 @@ FROM debian:bullseye-slim as build-stage
 # swap it up if you want to
 
 # This is arch + cpu instructionset
-ENV PY_FLAVOR x86_64-unknown-linux-gnu-install_only_stripped
+ENV PY_FLAVOR x86_64_v3-unknown-linux-gnu-install_only_stripped
 # And the actual release version for that
 ENV BASE_URL https://github.com/astral-sh/python-build-standalone/releases/download
 ENV PYTHON_VER 3.12.8
-ENV RELEASE_VER 20241206
-ENV SHASUM a19f6765df233ec3943c5e975c104a2ffd60ba1258cb038d7d6b8208308921c0
+ENV RELEASE_VER 20250106
+ENV SHASUM 3337c050775285e757406bcac24f221383958f75edb1e2ed923b0abdfd5ee350
 
 # pip
-ENV PYTHON_PIP_VERSION 24.1.1
-ENV PYTHON_SETUPTOOLS_VERSION 65.5.1
-ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/e03e1607ad60522cf34a92e834138eb89f57667c/public/get-pip.py
-ENV PYTHON_GET_PIP_SHA256 ee09098395e42eb1f82ef4acb231a767a6ae85504a9cf9983223df0a7cbd35d7
+ENV PYTHON_PIP_VERSION 24.3.1
+ENV PYTHON_SETUPTOOLS_VERSION 75.8.0
 
+ENV PYTHONHOME /python/lib/python3.12
+ENV PYTHONPATH /python/lib/python3.12
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -39,24 +39,16 @@ RUN set -eux; \
 	rm -r /python/share/; \
 	rm python.tar.gz; \
 	rm /python/bin/pip*; \
-	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
-	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; \
-	export PYTHONDONTWRITEBYTECODE=1; \
-	export PYTHONHOME=/python/lib/python3.12; \
-	export PYTHONPATH=/python/lib/python3.12; \
+	wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py; \
 	/python/bin/python3 get-pip.py \
 		--disable-pip-version-check \
 		--no-cache-dir \
 		--no-compile \
-		"pip==$PYTHON_PIP_VERSION" \
-		"setuptools==$PYTHON_SETUPTOOLS_VERSION" \
+		"pip>=$PYTHON_PIP_VERSION" \
+		"setuptools>=$PYTHON_SETUPTOOLS_VERSION" \
 		> /dev/null 2>&1 \
 	; \
 	rm -f get-pip.py
-
-ENV PATH /python/bin:$PATH
-ENV PYTHONHOME /python/lib/python3.12
-ENV PYTHONPATH /python/lib/python3.12
 
 # This is where you can build any deps
 
@@ -64,7 +56,7 @@ ADD requirements.txt .
 
 RUN set -eux; \
 	mkdir -p /deps; \
-	/python/bin/python -m pip install --target=/deps -r requirements.txt; \
+	/python/bin/python -m pip install --no-compile --target=/deps -r requirements.txt; \
 	/python/bin/python -m pip uninstall -y setuptools wheel; \
 	rm -r /python/lib/python3.12/bin/pip*; \
 	rm -r /python/lib/python3.12/lib/python3.12/site-packages/pip*/**
