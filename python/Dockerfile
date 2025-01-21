@@ -62,9 +62,10 @@ RUN set -eux; \
 	rm -r /python/lib/python3.12/lib/python3.12/site-packages/pip*/**
 
 
-# We use base, not static, despite indygreg's work on ensuring these dependencies are included for python
+# We use base, not static, despite indygreg's and later astral's
+# work on ensuring these dependencies are included for python
 # because many extensions may not statically link the few things included additionally
-FROM gcr.io/distroless/base-debian11:debug-nonroot as final_stage
+FROM gcr.io/distroless/base-debian12:debug-nonroot as final_stage
 
 # Note: there is a shell. python's os.system, popen, etc will **not** work without one
 # you can change this to :nonroot instead of :debug-nonroot and remove the busybox shell
